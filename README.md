@@ -1,2 +1,4 @@
 # PortfolioOptimization
-Material accompanying the MOSEK Portfolio Optimization Cookbook
+Material accompanying the MOSEK Portfolio Optimization Cookbook.
+
+In preparation.
