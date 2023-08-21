@@ -70,7 +70,7 @@ def cov_shrinkage_LW(m_estim, S_estim, return_array):
     
     
 def compute_inputs(
-        df_prices, 
+        list_df_prices, 
         sample_period='W', 
         investment_horizon=1, 
         show_histograms=False, 
@@ -82,15 +82,24 @@ def compute_inputs(
         'W': 52
     }
     
-    # PREPROC: Remove factors
-    if security_num is not None: 
-        df_prices = df_prices.iloc[:, 0:security_num]
+    # We can generate return distribution based on multiple periods of price data
+    if not isinstance(list_df_prices, list):
+        list_df_prices = [list_df_prices]
+        
+    df_weekly_log_returns = pd.DataFrame()
+    for df_prices in list_df_prices:
+        # PREPROC: Remove factors
+        if security_num is not None: 
+            df_prices = df_prices.iloc[:, 0:security_num]
 
-    # 1. Compute weekly logarithmic return
-    df_weekly_prices = df_prices.resample(sample_period).last()
-    df_weekly_log_returns = np.log(df_weekly_prices) - np.log(df_weekly_prices.shift(1))
-    df_weekly_log_returns = df_weekly_log_returns.dropna(how='all')
-    df_weekly_log_returns = df_weekly_log_returns.fillna(0)
+        # 1. Compute weekly logarithmic return
+        df_weekly_prices = df_prices.resample(sample_period).last()
+        df_weekly_log_returns_part = np.log(df_weekly_prices) - np.log(df_weekly_prices.shift(1))
+        df_weekly_log_returns_part = df_weekly_log_returns_part.dropna(how='all')
+        df_weekly_log_returns_part = df_weekly_log_returns_part.fillna(0)
+        
+        df_weekly_log_returns = pd.concat([df_weekly_log_returns, df_weekly_log_returns_part], ignore_index=True)
+
     if show_histograms:
         df_weekly_log_returns.hist(bins=50)
     
@@ -114,7 +123,7 @@ def compute_inputs(
         return m_log, S_log
     
     # 4. Compute the distribution of yearly linear return
-    p_0 = df_weekly_prices.iloc[0].to_numpy()
+    p_0 = np.ones(len(m_log))  # We use a dummy price here to see the method in two steps. It will be canceled out later. 
     m_P = p_0 * np.exp(m_log + 1/2*np.diag(S_log))
     S_P = np.outer(m_P, m_P) * (np.exp(S_log) - 1)
     
@@ -181,9 +190,9 @@ class DataReader(object):
         if read_volume:
             self.df_volumes = pd.concat(dict_volumes.values(), axis=1, keys=dict_volumes.keys()).sort_index()
         
-    def get_period(self, start_date, end_date):              
-        start_idx = self.df_prices.index.get_loc(pd.to_datetime(start_date), method='nearest')
-        end_idx = self.df_prices.index.get_loc(pd.to_datetime(end_date), method='nearest')
+    def get_period(self, start_date, end_date):         
+        start_idx = self.df_prices.index.get_indexer([pd.to_datetime(start_date)], method='nearest')[0]
+        end_idx = self.df_prices.index.get_indexer([pd.to_datetime(end_date)], method='nearest')[0]
         df_prices = self.df_prices.iloc[start_idx:(end_idx + 1)].copy()
         if self.df_volumes is not None:
             df_volumes = self.df_volumes.iloc[start_idx:(end_idx + 1)].copy()
