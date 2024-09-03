@@ -9,6 +9,8 @@ It is illustrated with complete code examples using MOSEK which can be found in 
 
 # Python notebooks
 
+These notebooks are compatible with MOSEK at least 10.2. See other branches for code compatible with older MOSEK versions.
+
 Notebook | Type | Keywords | Links
 --- | --- | --- | ---
 [Mean-variance optimization](./python/notebooks/./ch2_mean-variance_optimization.ipynb) | CQO | Markowitz, efficient frontier, conic model, risk, return | [CoLab](https://colab.research.google.com/github/MOSEK/PortfolioOptimization/blob/master/python/notebooks-colab/./ch2_mean-variance_optimization.ipynb), [Cookbook](https://docs.mosek.com/portfolio-cookbook/markowitz.html)
