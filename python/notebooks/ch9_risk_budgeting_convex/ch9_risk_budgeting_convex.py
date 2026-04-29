@@ -380,9 +380,9 @@ def _(glob, os, pd, re):
                 if read_volume:
                     dict_volumes[symbol] = df_data['volume']
 
-            self.df_prices = pd.concat(dict_prices.values(), axis=1, keys=dict_prices.keys()).sort_index()
+            self.df_prices = pd.concat(dict_prices.values(), axis=1, keys=dict_prices.keys(), sort=True).sort_index()
             if read_volume:
-                self.df_volumes = pd.concat(dict_volumes.values(), axis=1, keys=dict_volumes.keys()).sort_index()
+                self.df_volumes = pd.concat(dict_volumes.values(), axis=1, keys=dict_volumes.keys(), sort=True).sort_index()
 
         def get_period(self, start_date, end_date):         
             start_idx = self.df_prices.index.get_indexer([pd.to_datetime(start_date)], method='nearest')[0]
